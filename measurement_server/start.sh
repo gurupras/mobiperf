@@ -1,15 +1,15 @@
 #!/bin/bash
 
-exec >> /var/log/mobiperf 2>&1
+#exec >> /var/log/mobiperf 2>&1
 echo "####### Running /home/michigan_1/init/start.sh at `date` ########"
 
-cd /home/michigan_1/mobiperf
+#cd /home/michigan_1/mobiperf
 
-services="Downlink:6001:tcp Uplink:6002:tcp ServerConfig:6003:tcp UDPServer:31341:udp"
+services="Downlink:12001:tcp Uplink:12002:tcp ServerConfig:12003:tcp UDPServer:31341:udp"
 
 start() {
         echo "Attempting to start $1 ..."
-        java -Xmx128M -jar $1.jar &
+        java -Xmx128M -jar mlab/$1.jar &
         sleep 2
         jarpid=$!
 }
