@@ -23,12 +23,13 @@ public abstract class ExperimentWorker extends Thread {
 	public ExperimentWorker(String name, File logFile) {
 		this.name = name;
 		this.logFile = logFile;
+		this.logFile.mkdirs();
 	}
 
 	public static File getLogFile(String name) {
 		int logNum = 0;
 		while(true) {
-			File logFile = new File(LOGS_DIR.getAbsolutePath() + File.separatorChar + name + "." + logNum);
+			File logFile = new File(LOGS_DIR.getAbsolutePath() + File.separator + name + "." + logNum);
 			if(!logFile.exists()) {
 				return logFile;
 			}
@@ -39,7 +40,9 @@ public abstract class ExperimentWorker extends Thread {
 	protected synchronized void log(Object o) {
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(logFile, true));
-			out.write(o.toString());
+			String string = o.toString();
+			string = string.trim() + "\n";
+			out.write(string);
 			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
