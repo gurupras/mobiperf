@@ -1,13 +1,25 @@
 package servers;
 
 // import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
-public class DownlinkWorker extends Thread {
+import com.google.gson.JsonObject;
+
+public class DownlinkWorker extends ExperimentWorker {
+	
+  public DownlinkWorker() {
+		super("downlink");
+  }
+  
+  public DownlinkWorker(File logFile) {
+	  super("downlink", logFile);
+  }
+  
   private Socket client = null;
 
   public void setSocket(Socket client) {
@@ -17,15 +29,21 @@ public class DownlinkWorker extends Thread {
   public void run() {
     OutputStream oStream = null;
     try {
+      JsonObject json = new JsonObject();
+      
       client.setSoTimeout(Definition.RECV_TIMEOUT);
       oStream = client.getOutputStream();
 
+      String experimentId = getExperimentId(client);
+      json.addProperty("id", experimentId);
+      
       SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyyMMdd:HH:mm:ss:SSS");
       long threadId = this.getId();
       String startDate = sDateFormat.format(new Date()).toString();
-      System.out.println("[" + startDate + "]" + " Downlink worker <" +
+      log("[" + startDate + "]" + " Downlink worker <" +
                          threadId + "> Thread starts");
-
+      json.addProperty("startTime", startDate);
+      
       long start = System.currentTimeMillis();
       long end = System.currentTimeMillis();
 
@@ -37,11 +55,14 @@ public class DownlinkWorker extends Thread {
         end = System.currentTimeMillis();
       }
       String endDate = sDateFormat.format(new Date()).toString();
-      System.out.println("[" + endDate + "]" + " Downlink worker <" +
+      log("[" + endDate + "]" + " Downlink worker <" +
                          threadId + "> Thread ends");
+      json.addProperty("endTime", endDate);
+      
+      log(json.toString());
     } catch (IOException e) {
       e.printStackTrace();
-      System.out.println("Downlink worker failed: port <" +
+      log("Downlink worker failed: port <" +
                          Definition.PORT_DOWNLINK + ">");
     } finally {
       if (null != oStream) {
@@ -49,13 +70,13 @@ public class DownlinkWorker extends Thread {
           oStream.close();
         } catch (IOException e) {
           // nothing to be done, really; logging is probably over kill
-          System.err.println("Error closing socket output stream.");
+          log("Error closing socket output stream.");
         }
         try {
           client.close();
         } catch (IOException e) {
           // nothing to be done, really; logging is probably over kill
-          System.err.println("Error closing socket client.");
+          log("Error closing socket client.");
         }
       }
     }

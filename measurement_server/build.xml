@@ -1,0 +1,75 @@
+<project name="servers" default="jars">
+
+  <property name="src" location="src/"/>
+  <property name="build" location="bin/"/>
+  <path id="lib.classpath">
+    <fileset dir="lib">
+      <include name="**/*.jar" />
+    </fileset>
+  </path>
+
+  <target name="compile" depends="init">
+    <javac srcdir="${src}"
+           destdir="${build}"
+           includeantruntime="true"
+           deprecation="yes"
+           debug="yes"
+           classpath="${toString:lib.classpath}">
+      <compilerarg value="-Xlint:unchecked" />
+    </javac>
+  </target>
+
+  <target name="init">
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}"/>
+  </target>
+
+
+  <target name="jars" depends="compile">
+    <jar destfile="${build}/Uplink.jar" >
+      <fileset dir="${build}" includes="servers/Definition.class,servers/Uplink.class,servers/UplinkWorker.class,servers/Utilities.class" />
+      <zipgroupfileset dir="lib" includes="*.jar" />
+
+      <manifest>
+        <attribute name="Main-Class" value="servers.Uplink" />
+      </manifest>
+    </jar>
+
+    <jar destfile="${build}/Downlink.jar" >
+      <fileset dir="${build}" includes="servers/Definition.class,servers/Downlink.class,servers/DownlinkWorker.class,servers/Utilities.class" />
+      <zipgroupfileset dir="lib" includes="*.jar" />
+
+      <manifest>
+        <attribute name="Main-Class" value="servers.Downlink" />
+      </manifest>
+    </jar>
+
+    <jar destfile="${build}/ServerConfig.jar" >
+      <fileset dir="${build}" includes="servers/Definition.class,servers/ServerConfig.class,servers/ServerConfigWorker.class,servers/Utilities.class" />
+      <zipgroupfileset dir="lib" includes="*.jar" />
+
+      <manifest>
+        <attribute name="Main-Class" value="servers.ServerConfig" />
+      </manifest>
+    </jar>
+
+    <jar destfile="${build}/UDPServer.jar" >
+      <fileset dir="${build}" includes="com/udpmeasurement/*.class" />
+      <zipgroupfileset dir="lib" includes="*.jar" />
+
+      <manifest>
+        <attribute name="Main-Class" value="com.udpmeasurement.UDPServer" />
+      </manifest>
+    </jar>
+
+    <copy todir="mlab">
+      <fileset dir="${build}">
+        <include name="*.jar" />
+      </fileset>
+    </copy>
+  </target>
+
+</project>

@@ -1,5 +1,6 @@
 package servers;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
@@ -8,17 +9,30 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
-public class UplinkWorker extends Thread {
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+public class UplinkWorker extends ExperimentWorker {
   private Socket client = null;
 
   private ArrayList<Double> tps_result;
   public int size = 0;
   public long testStartTime = 0; //test start time, used to determine slow start period
   public long startTime = 0; //start time of this period to calculate throughput
-  public final static long SAMPLE_PERIOD = 1000; 
+  public final static long SAMPLE_PERIOD = 100; 
   public final static long SLOW_START_PERIOD = 5000; //empirically set to 5 seconds 
 
   public UplinkWorker() {
+	super("uplink");
+	init();
+  }
+
+  public UplinkWorker(File logFile) {
+	  super("uplink", logFile);
+	  init();
+  }
+  
+  private void init() {
     tps_result = new ArrayList<Double>();
     testStartTime = System.currentTimeMillis();
   }
@@ -35,12 +49,18 @@ public class UplinkWorker extends Thread {
       client.setTcpNoDelay(true);
 
       iStream = client.getInputStream();
-      oStream = client.getOutputStream(); 
+      oStream = client.getOutputStream();
+      /* Get experiment ID */
+      String experimentId = getExperimentId(client);
+      JsonObject json = new JsonObject();
+      json.addProperty("id", experimentId);
+      
       SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyyMMdd:HH:mm:ss:SSS");
       long threadId = this.getId();
       String startDate = sDateFormat.format(new Date()).toString();
-      System.out.println("[" + startDate + "]" + " Uplink worker <" +
+      log("[" + startDate + "]" + " Uplink worker <" +
                          threadId + "> Thread starts");
+      json.addProperty("startTime", startDate);
       
       int readLen;
       byte [] buffer = new byte[Definition.BUFFER_SIZE];
@@ -53,7 +73,7 @@ public class UplinkWorker extends Thread {
           if (readLen >= Definition.UPLINK_FINISH_MSG.length() && 
             recvData.substring(readLen - Definition.UPLINK_FINISH_MSG.length(), 
                                readLen).equals(Definition.UPLINK_FINISH_MSG)) {
-            System.out.println("LAST MSG detected break");
+            log("LAST MSG detected break");
             break;
           }
           updateSize(readLen);
@@ -61,6 +81,8 @@ public class UplinkWorker extends Thread {
         else break;
       }
 
+/*
+ * We do not send results
       if (tps_result.size() > 0) {
         String result = "";
         for (int i = 0; i < tps_result.size() - 1; i++)
@@ -69,14 +91,22 @@ public class UplinkWorker extends Thread {
         byte [] finalResult = result.getBytes();
         oStream.write(finalResult, 0, finalResult.length);
         oStream.flush();
-      }      
+      }
+*/
+      JsonArray tps_result_array = new JsonArray();
+      for(double d : tps_result)
+    	  tps_result_array.add(d);
+      json.add("speeds", tps_result_array);
+      
       String endDate = sDateFormat.format(new Date()).toString();
-      System.out.println("[" + endDate + "]" + " Uplink worker <" +
+      log("[" + endDate + "]" + " Uplink worker <" +
                          threadId + "> Thread ends");
-
+      json.addProperty("endTime", endDate);
+      
+      log(json.toString());
     } catch (IOException e) {
       e.printStackTrace();
-      System.out.println("Uplink worker failed: port <" +
+      log("Uplink worker failed: port <" +
                          Definition.PORT_DOWNLINK + ">");
     } finally {
       if (null != oStream) {
@@ -84,7 +114,7 @@ public class UplinkWorker extends Thread {
           oStream.close();
         } catch (IOException e) {
           // nothing to be done, really; logging is probably over kill
-          System.err.println("Error closing socket output stream.");
+          log("Error closing socket output stream.");
         }
       }
       if (null != iStream) {
@@ -92,13 +122,13 @@ public class UplinkWorker extends Thread {
           iStream.close();
         } catch (IOException e) {
           // nothing to be done, really; logging is probably over kill
-          System.err.println("Error closing socket input stream.");
+          log("Error closing socket input stream.");
         }
         try {
           client.close();
         } catch (IOException e) {
           // nothing to be done, really; logging is probably over kill
-          System.err.println("Error closing socket client.");
+          log("Error closing socket client.");
         }
       }
     }
@@ -119,7 +149,7 @@ public class UplinkWorker extends Thread {
     } else {
       //time is in milli, so already kbps
       double throughput = (double)size * 8.0 / time;
-      System.out.println("_throughput: " + throughput + " kbps_Time(sec): "
+      log("_throughput: " + throughput + " kbps_Time(sec): "
                          + (gtime / 1000.0));
       tps_result.add(throughput);
       size = 0;
