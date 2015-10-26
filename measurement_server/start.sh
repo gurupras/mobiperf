@@ -44,3 +44,5 @@ do
                 exit 1
         fi
 done
+
+sudo tcpdump -i eth0 -e -tt -vvv -s 100 -U -G 86400 -w 'tcpdump-%s' 'tcp and (port 12001 or port 12002)'
