@@ -29,3 +29,6 @@ android/*/*/.DS_Store
 
 # Temporary files
 .*.sw*
+
+# Logs
+logs
