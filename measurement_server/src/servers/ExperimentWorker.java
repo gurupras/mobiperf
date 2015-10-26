@@ -28,7 +28,7 @@ public abstract class ExperimentWorker extends Thread {
 	public static File getLogFile(String name) {
 		int logNum = 0;
 		while(true) {
-			File logFile = new File(LOGS_DIR.getAbsolutePath() + File.pathSeparator + name + "." + logNum);
+			File logFile = new File(LOGS_DIR.getAbsolutePath() + File.separatorChar + name + "." + logNum);
 			if(!logFile.exists()) {
 				return logFile;
 			}
