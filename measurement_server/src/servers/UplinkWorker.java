@@ -60,7 +60,7 @@ public class UplinkWorker extends ExperimentWorker {
       String startDate = sDateFormat.format(new Date()).toString();
       log("[" + startDate + "]" + " Uplink worker <" +
                          threadId + "> Thread starts");
-      json.addProperty("startTime", startDate);
+      json.addProperty("startTime", System.currentTimeMillis());
       
       int readLen;
       byte [] buffer = new byte[Definition.BUFFER_SIZE];
@@ -101,7 +101,7 @@ public class UplinkWorker extends ExperimentWorker {
       String endDate = sDateFormat.format(new Date()).toString();
       log("[" + endDate + "]" + " Uplink worker <" +
                          threadId + "> Thread ends");
-      json.addProperty("endTime", endDate);
+      json.addProperty("endTime", System.currentTimeMillis());
       
       log(json.toString());
     } catch (IOException e) {

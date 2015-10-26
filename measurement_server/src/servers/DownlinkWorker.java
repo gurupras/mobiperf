@@ -42,7 +42,7 @@ public class DownlinkWorker extends ExperimentWorker {
       String startDate = sDateFormat.format(new Date()).toString();
       log("[" + startDate + "]" + " Downlink worker <" +
                          threadId + "> Thread starts");
-      json.addProperty("startTime", startDate);
+      json.addProperty("startTime", System.currentTimeMillis());
       
       long start = System.currentTimeMillis();
       long end = System.currentTimeMillis();
@@ -57,7 +57,7 @@ public class DownlinkWorker extends ExperimentWorker {
       String endDate = sDateFormat.format(new Date()).toString();
       log("[" + endDate + "]" + " Downlink worker <" +
                          threadId + "> Thread ends");
-      json.addProperty("endTime", endDate);
+      json.addProperty("endTime", System.currentTimeMillis());
       
       log(json.toString());
     } catch (IOException e) {
