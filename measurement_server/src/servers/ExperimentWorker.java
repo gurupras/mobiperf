@@ -14,19 +14,26 @@ public abstract class ExperimentWorker extends Thread {
 	private File logFile;
 	
 	public ExperimentWorker(String name) {
-		if(!LOGS_DIR.exists()) {
-			LOGS_DIR.mkdirs();
-		}
 		this.name = name;
+		initLogDir();
+		this.logFile = getLogFile(name);
 	}
-	
+
 	public ExperimentWorker(String name, File logFile) {
 		this.name = name;
 		this.logFile = logFile;
-		this.logFile.mkdirs();
+		
 	}
 
+	private static void initLogDir() {
+		if(!LOGS_DIR.exists()) {
+			LOGS_DIR.mkdirs();
+		}
+	}
+	
 	public static File getLogFile(String name) {
+		initLogDir();
+		
 		int logNum = 0;
 		while(true) {
 			File logFile = new File(LOGS_DIR.getAbsolutePath() + File.separator + name + "." + logNum);
