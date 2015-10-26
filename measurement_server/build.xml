@@ -30,7 +30,7 @@
 
   <target name="jars" depends="compile">
     <jar destfile="${build}/Uplink.jar" >
-      <fileset dir="${build}" includes="servers/Definition.class,servers/Uplink.class,servers/UplinkWorker.class,servers/Utilities.class" />
+      <fileset dir="${build}" includes="servers/Definition.class,servers/ExperimentWorker.class,servers/Uplink.class,servers/UplinkWorker.class,servers/Utilities.class" />
       <zipgroupfileset dir="lib" includes="*.jar" />
 
       <manifest>
@@ -39,7 +39,7 @@
     </jar>
 
     <jar destfile="${build}/Downlink.jar" >
-      <fileset dir="${build}" includes="servers/Definition.class,servers/Downlink.class,servers/DownlinkWorker.class,servers/Utilities.class" />
+      <fileset dir="${build}" includes="servers/Definition.class,servers/ExperimentWorker.class,servers/Downlink.class,servers/DownlinkWorker.class,servers/Utilities.class" />
       <zipgroupfileset dir="lib" includes="*.jar" />
 
       <manifest>
@@ -48,7 +48,7 @@
     </jar>
 
     <jar destfile="${build}/ServerConfig.jar" >
-      <fileset dir="${build}" includes="servers/Definition.class,servers/ServerConfig.class,servers/ServerConfigWorker.class,servers/Utilities.class" />
+      <fileset dir="${build}" includes="servers/Definition.class,servers/ExperimentWorker.class,servers/ServerConfig.class,servers/ServerConfigWorker.class,servers/Utilities.class" />
       <zipgroupfileset dir="lib" includes="*.jar" />
 
       <manifest>
