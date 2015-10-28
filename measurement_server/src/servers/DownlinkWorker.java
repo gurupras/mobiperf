@@ -52,13 +52,14 @@ public class DownlinkWorker extends ExperimentWorker {
       while(end - start < Definition.DURATION_IPERF_MILLISECONDS) {
         oStream.write(buffer, 0, buffer.length);
         oStream.flush();
+        size += buffer.length;
         end = System.currentTimeMillis();
       }
       String endDate = sDateFormat.format(new Date()).toString();
       log("[" + endDate + "]" + " Downlink worker <" +
                          threadId + "> Thread ends");
       json.addProperty("endTime", System.currentTimeMillis());
-      
+      json.addProperty("size", size);
       log(json.toString());
     } catch (IOException e) {
       e.printStackTrace();

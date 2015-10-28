@@ -16,7 +16,7 @@ public class UplinkWorker extends ExperimentWorker {
   private Socket client = null;
 
   private ArrayList<Double> tps_result;
-  public int size = 0;
+  public int updateSize = 0;
   public long testStartTime = 0; //test start time, used to determine slow start period
   public long startTime = 0; //start time of this period to calculate throughput
   public final static long SAMPLE_PERIOD = 100; 
@@ -77,6 +77,7 @@ public class UplinkWorker extends ExperimentWorker {
             break;
           }
           updateSize(readLen);
+          size += readLen;
         }
         else break;
       }
@@ -102,7 +103,7 @@ public class UplinkWorker extends ExperimentWorker {
       log("[" + endDate + "]" + " Uplink worker <" +
                          threadId + "> Thread ends");
       json.addProperty("endTime", System.currentTimeMillis());
-      
+      json.addProperty("size", size);
       log(json.toString());
     } catch (IOException e) {
       e.printStackTrace();
@@ -140,19 +141,19 @@ public class UplinkWorker extends ExperimentWorker {
       return;
     if (startTime == 0) {
       startTime = System.currentTimeMillis();
-      size = 0;
+      updateSize = 0;
     }
-    size += delta;
+    updateSize += delta;
     double time = System.currentTimeMillis() - startTime;
     if (time < SAMPLE_PERIOD) {
       return;
     } else {
       //time is in milli, so already kbps
-      double throughput = (double)size * 8.0 / time;
+      double throughput = (double)updateSize * 8.0 / time;
       log("_throughput: " + throughput + " kbps_Time(sec): "
                          + (gtime / 1000.0));
       tps_result.add(throughput);
-      size = 0;
+      updateSize = 0;
       startTime = System.currentTimeMillis();
     }  
   }

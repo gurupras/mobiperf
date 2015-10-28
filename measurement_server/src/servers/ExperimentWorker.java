@@ -12,17 +12,19 @@ public abstract class ExperimentWorker extends Thread {
 	
 	private String name;
 	private File logFile;
+	protected long size;
 	
 	public ExperimentWorker(String name) {
 		this.name = name;
 		initLogDir();
 		this.logFile = getLogFile(name);
+		this.size = 0;
 	}
 
 	public ExperimentWorker(String name, File logFile) {
 		this.name = name;
 		this.logFile = logFile;
-		
+		this.size = 0;
 	}
 
 	private static void initLogDir() {
